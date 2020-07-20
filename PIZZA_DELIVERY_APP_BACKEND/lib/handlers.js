@@ -434,7 +434,7 @@ handlers._carts.post = function (data, callback) {
               if (!err && userData) {
                 var userCart = typeof (userData.cart) == 'object' && userData.cart instanceof Array ? userData.cart : [];
                 // Verify that user has less than the number of max-Cart Items per user
-                if (userCart.length <= config.maxCartItems) {
+                if (userCart.length < config.maxCartItems) {
                   // Create random id for cart item
                   var itemId = helpers.createRandomString(20);
 
