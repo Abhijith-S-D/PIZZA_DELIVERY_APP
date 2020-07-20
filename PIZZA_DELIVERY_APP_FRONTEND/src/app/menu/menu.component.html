@@ -1,0 +1,18 @@
+<mat-grid-list cols="3" rowHeight="300px">
+    <mat-grid-tile *ngFor="let menuItem of ( menu| async) | keyvalue" fxFlex="50">
+        <mat-card class="menu-card text-center">
+            <mat-card-header class="text-center card-header">
+                <mat-card-title class="text-center">{{menuItem.value.name}}</mat-card-title>
+                <mat-card-subtitle class="text-center">{{menuItem.value.price | currency}}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="text-center card-content">
+                <p>
+                    {{menuItem.value.description}}
+                </p>
+            </mat-card-content>
+            <mat-card-actions class="text-center">
+                <button mat-raised-button color="primary" (click)="addMenuToCart(menuItem.key)">Add To Cart</button>
+            </mat-card-actions>
+        </mat-card>
+    </mat-grid-tile>
+</mat-grid-list>

@@ -1,0 +1,68 @@
+<mat-horizontal-stepper #stepper>
+    <mat-step>
+        <ng-template matStepLabel>Modify Cart</ng-template>
+        <mat-grid-list cols="3" rowHeight="300px">
+            <mat-grid-tile *ngFor="let cartItem of ( cart| async).items" fxFlex="50">
+                <mat-card class="menu-card text-center">
+                    <mat-card-header class="text-center card-header">
+                        <mat-card-title class="text-center">{{menuService.menuData[cartItem.menuId].name}}
+                        </mat-card-title>
+                        <mat-card-subtitle class="text-center">
+                            {{menuService.menuData[cartItem.menuId].price | currency}}</mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content class="text-center card-content">
+                        <p>
+                            {{menuService.menuData[cartItem.menuId].description}}
+                        </p>
+                    </mat-card-content>
+                    <mat-card-actions class="text-center">
+                        <input mat-input class="text-center" #quantity type="number" min="1"
+                            value="{{cartItem.quantity}}">
+                        <br>
+                        <br>
+                        <button mat-raised-button color="accent"
+                            (click)="updateCartItem(cartItem.menuId,+quantity.value,cartItem.id)">Update</button>
+                        <button mat-raised-button color="warn" (click)="deleteCartItem(cartItem.id)">Remove</button>
+                    </mat-card-actions>
+                </mat-card>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </mat-step>
+    <mat-step>
+        <ng-template matStepLabel>Verify Cart</ng-template>
+        <mat-grid-list cols="3" rowHeight="300px">
+            <mat-grid-tile *ngFor="let cartItem of ( cart| async).items" fxFlex="50">
+                <mat-card class="menu-card text-center">
+                    <mat-card-header class="text-center card-header">
+                        <mat-card-title class="text-center">{{menuService.menuData[cartItem.menuId].name}}
+                        </mat-card-title>
+                        <mat-card-subtitle class="text-center">
+                            {{menuService.menuData[cartItem.menuId].price | currency}}</mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content class="text-center card-content">
+                        <p>
+                            {{menuService.menuData[cartItem.menuId].description}}
+                        </p>
+                    </mat-card-content>
+                    <mat-card-actions class="text-center">
+                        <p class="text-center">Quantity: {{cartItem.quantity}}</p>
+                        <br>
+                        <br>
+                    </mat-card-actions>
+                </mat-card>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </mat-step>
+    <mat-step>
+        <ng-template matStepLabel>Place Order</ng-template>
+        <div *ngIf="!placingOrder" class="text-center">
+            <br>
+            <br>
+            <button mat-raised-button color="primary" (click)="placeOrder()">Place Order</button>
+
+        </div>
+        <div *ngIf="placingOrder" fxLayout="row" fxLayoutAlign="space-around center" style="height:100%">
+            <mat-spinner diameter="50" strokeWidth="5" ></mat-spinner>
+        </div>
+    </mat-step>
+</mat-horizontal-stepper>

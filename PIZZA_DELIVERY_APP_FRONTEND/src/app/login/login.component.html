@@ -1,0 +1,68 @@
+<div fxLayout="row" class="login" fxLayoutAlign="center start">
+    <mat-card *ngIf="!checked">
+        <mat-card-content>
+            <h2>Log In</h2>
+            <mat-slide-toggle class="example-margin" [(ngModel)]="checked" [color]="color" [checked]="checked"
+                [disabled]="disabled">
+                Register
+            </mat-slide-toggle>
+            <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+                <mat-error *ngIf="loginInvalid">
+                    {{errorMessage}}
+                </mat-error>
+                <mat-form-field class="full-width-input">
+                    <input matInput placeholder="Email" formControlName="email" required>
+                    <mat-error>
+                        Please provide a valid email address
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="full-width-input">
+                    <input matInput type="password" placeholder="Password" formControlName="password" required>
+                    <mat-error>
+                        Please provide a valid password
+                    </mat-error>
+                </mat-form-field>
+                <button mat-raised-button color="primary" [disabled]="!loginForm.valid">Login</button>
+            </form>
+        </mat-card-content>
+    </mat-card>
+    <mat-card *ngIf="checked">
+        <mat-card-content>
+            <h2>Register</h2>
+            <mat-slide-toggle class="example-margin" [color]="color" [(ngModel)]="checked" [checked]="checked"
+                [disabled]="disabled">
+                Register
+            </mat-slide-toggle>
+            <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+                <mat-error *ngIf="registerInvalid">
+                    {{registerErrorMessage}}
+                </mat-error>
+                <mat-form-field class="full-width-input">
+                    <input matInput placeholder="Name" formControlName="name" required>
+                    <mat-error>
+                        Please provide a valid name
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="full-width-input">
+                    <input matInput placeholder="Email" formControlName="email" required>
+                    <mat-error>
+                        Please provide a valid email address
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="full-width-input">
+                    <input matInput type="password" placeholder="Password" formControlName="password" required>
+                    <mat-error>
+                        Please provide a valid password
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="full-width-input">
+                    <input matInput type="text" placeholder="Address" formControlName="address" required>
+                    <mat-error>
+                        Please provide a valid address
+                    </mat-error>
+                </mat-form-field>
+                <button mat-raised-button color="primary" [disabled]="!registerForm.valid" >Register</button>
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>
