@@ -8,6 +8,8 @@ var _data = require('./data');
 var helpers = require('./helpers');
 var config = require('./config');
 var menus = require('./menus');
+const { resolve } = require('path');
+const { promises } = require('fs');
 
 // Define all the handlers
 var handlers = {};
@@ -705,91 +707,117 @@ handlers._orders.post = function (data, callback) {
                 // Verify that user has less than the number of max-Cart Items per user
                 if (userCart.length <= config.maxCartItems) {
                   var cartData = { 'items': [] };
-                  // Loop through the cart Items
-                  userCart.forEach(function (itemId) {
-                    _data.read('carts', itemId, function (err, cartItemData) {
-                      if (!err && cartItemData) {
-                        // Add the cart item to cart data
-                        cartData.items.push(cartItemData);
-                      } else {
-                        callback(404);
+                  var promiseForUserCart = new Promise((resolve, reject) => {
+                    var promises = [];
+                    var pushPromises = userCart.map((item) => {
+                      var resolveHandler;
+                      var my_promise = new Promise((resolve, reject) => {
+                        resolveHandler = resolve;
+                      });
+                      return {
+                        promise: my_promise,
+                        resolve: resolveHandler
                       }
                     });
+                    // Loop through the cart Items
+                    userCart.forEach(function (itemId, index) {
+                      promises.push(
+                        new Promise((resolve, reject) => {
+                          _data.read('carts', itemId, function (err, cartItemData) {
+                            if (!err && cartItemData) {
+                              // Add the cart item to cart data
+                              cartData.items.push(cartItemData);
+                              pushPromises[index].resolve();
+                              resolve();
+                            } else {
+                              callback(404);
+                            }
+                          });
+                        })
+                      );
+                      Promise.all(pushPromises).then(() => {
+                        Promise.all(promises).then(() => {
+                          resolve();
+                        });
+                      });
+                    });
                   });
-                  var price = 0;
-                  var desc = [];
-                  cartData.items.forEach(i => {
-                    price += menus[i.menuId].price * i.quantity;
-                    desc.push(menus[i.menuId].name);
-                  });
-                  // Stripe don't allow paise
-                  var amount = Math.round(price);
-                  var currency = config.currency;
-                  var description =
-                    "Payment for: " +
-                    desc.join(", ").replace(/\./g, "") +
-                    ". Email: " +
-                    email;
-                  var orders = {
-                    email,
-                    currency,
-                    amount,
-                    items: cartData.items,
-                    time: Date.now()
-                  };
-                  helpers.stripe(amount, currency, description, cc, result => {
-                    if (result) {
-                      // if payment is successful, create the order and save it under ./data/orders
-                      _data.create("orders", email, orders, function (err) {
-                        // once order saved, email the user
-                        if (!err) {
-                          var mailText = `Your payment for ${desc.join(", ").replace(/\./g, "")} is successful`;
-                          helpers.mailgun(
-                            "Order successful",
-                            mailText,
-                            result => {
-                              if (result) {
-                                // Loop through the cart Items
-                                userCart.forEach(function (itemId) {
-                                  _data.delete('carts', itemId, function (err) {
+                  promiseForUserCart.then(() => {
+                    var price = 0;
+                    var desc = [];
+                    cartData.items.forEach(i => {
+                      price += menus[i.menuId].price * i.quantity;
+                      desc.push(menus[i.menuId].name);
+                    });
+                    // Stripe don't allow paise
+                    var amount = Math.round(price);
+                    var currency = config.currency;
+                    var description =
+                      "Payment for: " +
+                      desc.join(", ").replace(/\./g, "") +
+                      ". Email: " +
+                      email;
+                    var orders = {
+                      email,
+                      currency,
+                      amount,
+                      items: cartData.items,
+                      time: Date.now()
+                    };
+                    helpers.stripe(amount, currency, description, cc, result => {
+                      if (result) {
+                        // if payment is successful, create the order and save it under ./data/orders
+                        _data.create("orders", email+'-'+orders.time, orders, function (err) {
+                          // once order saved, email the user
+                          if (!err) {
+                            var mailText = `Your payment for ${desc.join(", ").replace(/\./g, "")} is successful`;
+                            helpers.mailgun(
+                              "Order successful",
+                              mailText,
+                              result => {
+                                if (result) {
+                                  // Loop through the cart Items
+                                  userCart.forEach(function (itemId) {
+                                    _data.delete('carts', itemId, function (err) {
+                                      if (!err) {
+                                      } else {
+                                        callback(500, {
+                                          Error: "Could not delete the user cart"
+                                        });
+                                      }
+                                    });
+                                  });
+
+                                  //empty the cart from user data as well
+                                  userData.cart = [];
+
+                                  // Store the new updates
+                                  _data.update('users', email, userData, function (err) {
                                     if (!err) {
+                                      callback(200);
                                     } else {
-                                      callback(500, {
-                                        Error: "Could not delete the user cart"
-                                      });
+                                      callback(500, { 'Error': 'Could not update the user.' });
                                     }
                                   });
-                                });
 
-                                //empty the cart from user data as well
-                                userData.cart = [];
-
-                                // Store the new updates
-                                _data.update('users', email, userData, function (err) {
-                                  if (!err) {
-                                    callback(200);
-                                  } else {
-                                    callback(500, { 'Error': 'Could not update the user.' });
-                                  }
-                                });
-
-                              } else {
-                                callback(500, {
-                                  Error:
-                                    "Could not send email but the payment however is successful"
-                                });
+                                } else {
+                                  callback(500, {
+                                    Error:
+                                      "Could not send email but the payment however is successful"
+                                  });
+                                }
                               }
-                            }
-                          );
-                        } else {
-                          callback(500, {
-                            Error: "Could not create the orders."
-                          });
-                        }
-                      });
-                    } else {
-                      callback(result);
-                    }
+                            );
+                          } else {
+                            callback(500, {
+                              Error: "Could not create the orders."
+                            });
+                          }
+                        });
+                      } else {
+                        callback(result);
+                      }
+                    });
                   });
                 } else {
                   callback(400, { 'Error': 'The user already has the maximum number of cart Item (' + config.maxCartItems + ').' })
