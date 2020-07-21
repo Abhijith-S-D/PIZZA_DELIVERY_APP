@@ -117,7 +117,7 @@ helpers.mailgun = (subject, text, callback) => {
   const stringPayload = querystring.stringify(payload);
 
   const requestDetails = {
-    auth: "api:26719121ce167c92916833fdb380b13a-c322068c-7490ae82",
+    auth: "api:"+config.mailgunKey,
     protocol: "https:",
     hostname: "api.mailgun.net",
     method: "POST",

@@ -14,7 +14,8 @@ environments.staging = {
   'hashingSecret' : 'thisIsASecret',
   'maxCartItems' : 5,
   currency: "inr",
-  stripeSecretKey: "sk_test_Tw7MiUyZuzC15v1wvBMYAYfN00C7Hnai3e"
+  stripeSecretKey: "sk_test_Tw7MiUyZuzC15v1wvBMYAYfN00C7Hnai3e",
+  mailgunKey: "26719121ce167c92916833fdb380b13a-c322068c-7490ae82"
 };
 
 // Production environment
@@ -25,7 +26,8 @@ environments.production = {
   'hashingSecret' : 'thisIsAlsoASecret',
   'maxCartItems' : 10,
   currency: "inr",
-  stripeSecretKey: "sk_test_Tw7MiUyZuzC15v1wvBMYAYfN00C7Hnai3e"
+  stripeSecretKey: "sk_test_Tw7MiUyZuzC15v1wvBMYAYfN00C7Hnai3e",
+  mailgunKey: "26719121ce167c92916833fdb380b13a-c322068c-7490ae82"
 };
 
 // Determine which environment was passed as a command-line argument
