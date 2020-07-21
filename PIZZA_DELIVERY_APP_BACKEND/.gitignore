@@ -5,3 +5,7 @@
 !.data/orders/.keep
 !.data/tokens/.keep
 !.data/users/.keep
+
+#https files
+https
+!https/.keep
