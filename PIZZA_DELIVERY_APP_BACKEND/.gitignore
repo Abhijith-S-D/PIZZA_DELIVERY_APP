@@ -1,0 +1,7 @@
+#Data files
+.data/*
+!.data/.keep
+!.data/carts/.keep
+!.data/orders/.keep
+!.data/tokens/.keep
+!.data/users/.keep
