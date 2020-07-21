@@ -45,6 +45,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
+#Data files
 .data/*
 !.data/.keep
 !.data/carts/.keep
