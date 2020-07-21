@@ -57,7 +57,8 @@ handlers._users.post = function (data, callback) {
             'name': name,
             'email': email,
             'address': address,
-            'hashedPassword': hashedPassword
+            'hashedPassword': hashedPassword,
+            'time': Date.now()
           };
 
           // Store the user
